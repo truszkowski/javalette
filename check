@@ -1,0 +1,99 @@
+#!/bin/bash
+
+echo "Pierwsza seria"
+
+./javalette ./examples/good/core001.jl -e tocheck || ( echo fatal 01 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core001.output && echo "01 Ok"
+./javalette ./examples/good/core002.jl -e tocheck || ( echo fatal 02 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core002.output && echo "02 Ok"
+./javalette ./examples/good/core003.jl -e tocheck || ( echo fatal 03 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core003.output && echo "03 Ok"
+./javalette ./examples/good/core004.jl -e tocheck || ( echo fatal 04 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core004.output && echo "04 Ok"
+./javalette ./examples/good/core005.jl -e tocheck || ( echo fatal 05 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core005.output && echo "05 Ok"
+./javalette ./examples/good/core006.jl -e tocheck || ( echo fatal 06 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core006.output && echo "06 Ok"
+./javalette ./examples/good/core007.jl -e tocheck || ( echo fatal 07 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core007.output && echo "07 Ok"
+./javalette ./examples/good/core008.jl -e tocheck || ( echo fatal 08 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core008.output && echo "08 Ok"
+./javalette ./examples/good/core009.jl -e tocheck || ( echo fatal 09 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core009.output && echo "09 Ok"
+./javalette ./examples/good/core010.jl -e tocheck || ( echo fatal 10 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core010.output && echo "10 Ok"
+./javalette ./examples/good/core011.jl -e tocheck || ( echo fatal 11 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core011.output && echo "11 Ok"
+./javalette ./examples/good/core012.jl -e tocheck || ( echo fatal 12 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core012.output && echo "12 Ok"
+./javalette ./examples/good/core013.jl -e tocheck || ( echo fatal 13 ; exit 1 ) 
+./tocheck > output && diff output ./examples/good/core013.output && echo "13 Ok"
+./javalette ./examples/good/core014.jl -e tocheck || ( echo fatal 14 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core014.output && echo "14 Ok"
+./javalette ./examples/good/core015.jl -e tocheck || ( echo fatal 15 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core015.output && echo "15 Ok"
+./javalette ./examples/good/core016.jl -e tocheck || ( echo fatal 16 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core016.output && echo "16 Ok"
+./javalette ./examples/good/core017.jl -e tocheck || ( echo fatal 17 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core017.output && echo "17 Ok"
+./javalette ./examples/good/core018.jl -e tocheck || ( echo fatal 18 ; exit 1 )
+./tocheck < ./examples/good/core018.input > output && diff output ./examples/good/core018.output && echo "18 Ok"
+./javalette ./examples/good/core019.jl -e tocheck || ( echo fatal 19 ; exit 1 )
+./tocheck > output && diff output ./examples/good/core019.output && echo "19 Ok"
+
+echo "Druga seria"
+
+./javalette ./tests/correct001.jl -e tocheck || ( echo fatal 01 ; exit 1 )
+./tocheck > output && diff output ./tests/correct001.output && echo "01 Ok"
+./javalette ./tests/correct002.jl -e tocheck || ( echo fatal 02 ; exit 1 )
+./tocheck > output && diff output ./tests/correct002.output && echo "02 Ok"
+./javalette ./tests/correct003.jl -e tocheck || ( echo fatal 03 ; exit 1 )
+./tocheck > output && diff output ./tests/correct003.output && echo "03 Ok"
+./javalette ./tests/correct004.jl -e tocheck || ( echo fatal 04 ; exit 1 )
+./tocheck > output && diff output ./tests/correct004.output && echo "04 Ok"
+./javalette ./tests/correct005.jl -e tocheck || ( echo fatal 05 ; exit 1 )
+./tocheck > output && diff output ./tests/correct005.output && echo "05 Ok"
+./javalette ./tests/correct006.jl -e tocheck || ( echo fatal 06 ; exit 1 )
+./tocheck > output && diff output ./tests/correct006.output && echo "06 Ok"
+./javalette ./tests/correct007.jl -e tocheck || ( echo fatal 07 ; exit 1 )
+./tocheck > output && diff output ./tests/correct007.output && echo "07 Ok"
+./javalette ./tests/correct008.jl -e tocheck || ( echo fatal 08 ; exit 1 )
+./tocheck > output && diff output ./tests/correct008.output && echo "08 Ok"
+./javalette ./tests/correct009.jl -e tocheck || ( echo fatal 09 ; exit 1 )
+./tocheck > output && diff output ./tests/correct009.output && echo "09 Ok"
+./javalette ./tests/correct010.jl -e tocheck || ( echo fatal 10 ; exit 1 )
+./tocheck > output && diff output ./tests/correct010.output && echo "10 Ok"
+./javalette ./tests/explicit_cast.jl -e tocheck || ( echo fatal 11 ; exit 1 )
+./tocheck > output && diff output ./tests/explicit_cast.output && echo "11 Ok"
+
+echo "Trzecia seria"
+
+./javalette ./tests/other/cmp.jl -e tocheck || ( echo fatal 01 ; exit 1 )
+./tocheck > output && diff output ./tests/other/cmp.output && echo "01 Ok"
+./javalette ./tests/other/div.jl -e tocheck || ( echo fatal 02 ; exit 1 )
+./tocheck > output && diff output ./tests/other/div.output && echo "02 Ok"
+./javalette ./tests/other/double.jl -e tocheck || ( echo fatal 03 ; exit 1 )
+./tocheck > output && diff output ./tests/other/double.output && echo "03 Ok"
+./javalette ./tests/other/float.jl -e tocheck || ( echo fatal 04 ; exit 1 )
+./tocheck > output && diff output ./tests/other/float.output && echo "04 Ok"
+./javalette ./tests/other/fun.jl -e tocheck || ( echo fatal 05 ; exit 1 )
+./tocheck > output && diff output ./tests/other/fun.output && echo "05 Ok"
+./javalette ./tests/other/int.jl -e tocheck || ( echo fatal 06 ; exit 1 )
+./tocheck > output && diff output ./tests/other/int.output && echo "06 Ok"
+./javalette ./tests/other/intop.jl -e tocheck || ( echo fatal 07 ; exit 1 )
+./tocheck > output && diff output ./tests/other/intop.output && echo "07 Ok"
+./javalette ./tests/other/neg.jl -e tocheck || ( echo fatal 08 ; exit 1 )
+./tocheck > output && diff output ./tests/other/neg.output && echo "08 Ok"
+./javalette ./tests/other/test1.jl -e tocheck || ( echo fatal 09 ; exit 1 )
+./tocheck > output && diff output ./tests/other/test1.output && echo "09 Ok"
+./javalette ./tests/other/test.jl -e tocheck || ( echo fatal 10 ; exit 1 )
+./tocheck > output && diff output ./tests/other/test.output && echo "10 Ok"
+./javalette ./tests/other/trik2.jl -e tocheck || ( echo fatal 11 ; exit 1 )
+./tocheck > output && diff output ./tests/other/trik2.output && echo "11 Ok"
+./javalette ./tests/other/trik.jl -e tocheck || ( echo fatal 12 ; exit 1 )
+./tocheck > output && diff output ./tests/other/trik.output && echo "12 Ok"
+./javalette ./tests/other/test5.jl -e tocheck || ( echo fatal 13 ; exit 1 )
+./tocheck < ./tests/other/test5.input > output && diff output ./tests/other/test5.output && echo "13 Ok"
+
+rm -f output tocheck tocheck.asm tocheck.o
+

@@ -1,0 +1,215 @@
+0.   Spis tresci
+
+	1- Analiza leksykalna
+	2- Analiza skladniowa
+	3- Analiza kontekstowa (semantyczna)
+	4- Generowanie kodu do asemblera (NASM)
+
+1.   Analiza leksykalna
+
+	Komentarze:
+		- /* komentarz w bloku */
+		- // komentarz w linni
+		- # komentarz w linni
+
+	Wartosci:
+		- [0-9]+.[0-9]*  - wartosc typu double
+		- [0-9]+         - wartosc typu int
+		- true|false     - wartosc typu boolean
+		- "[^"]"         - wartosc typu string
+	
+	Typy:
+		- "double", "int", "boolean", "string", "void"
+
+	Slowa kluczowe:
+		- "if", "else", "for", "while", "return"
+
+	Operatory:
+		- '+', '-', '*', '/', ...
+	
+	Identyfikatory:
+		- [a-zA-Z][a-zA-Z0-9_]*
+
+2.   Analiza skladniowa
+
+	- Tablica nazw dla identyfikatorow
+
+	- Za pomoca regul w bisonie tworzone jest drzewo
+
+	- Rozszerzenia w jezyku:
+		- Rzutowanie, domyslne i jawne
+		- Zagniezdzone funkcje
+		- Przypisanie jako wyrazenie
+
+3.   Analiza kontekstowa (semantyczna)
+	
+	Przed rozpoczeciem analizy, dolaczane sa do programu funkcje 'printString',
+	'printInt', 'printDouble', 'readInt', 'readDouble' i 'error'. Sa one 
+	umieszczane w glownym kontekscie (struktura 'j_context_t') wraz z innymi 
+	funkcjami zdefiniowanymi w programie (nie liczac zagniezdzonych). Funkcje 
+	zdefiniowane globalnie sa widoczne w kazdym miejscu programu, o ile nie 
+	zostana przykryte przez inna definicje zagniezdzonej funkcji o tej samej 
+	nazwie. Na poziomie tego samego kontekstu nazwy funkcji musza byc unikalne.
+	Podobnie ze zmiennymi, w tym samym konteksie moze wystapic tylko jedna 
+	deklaracja tej samej zmiennej. Ciekawy wyjatek - 'int x = (x = 11) + 1;' -
+	zadziala jesli kontekscie nizej jest zadeklarowana zmienna x, jej to zostanie
+	przypisana wartosc 11 a nastepnie nowemu x-owi 12.
+
+	Tablica symboli zostala podzielona na odrebna tablice zmiennych 'j_vartbl_t'
+	i tablice funkcji 'j_funtbl_t'. Mozliwe jest dzieki temu istnienie w tym 
+	samym kontekscie zmiennej oraz funkcji o tej samej nazwie. Kazda struktura
+	'j_context_t' ma wlasna tablice symboli oraz wskaznik na kontekst nizej.
+	Dodatkowo kontekst wie w jakiej funkcji sie znajduje (potrzebne przy 
+	intrukcji powrotu). Natomiast w tablicy symboli dla kazdego symbolu trzymany 
+	jest wskaznik do wystapienia jego deklaracji w drzewie. 
+
+	W wywolaniach funkcji, przypisaniach czy operacjach na wyrazeniach moga 
+	wystapowac roznice typow. Wtedy tworzony zostaje dodatkowy wezel w drzewie
+	wykonujacy operacje rzutowania na wlasciwy typ.
+
+	Analiza przykladow z katalogu 'examples/':
+
+		- examples/good/core*.jl - ok
+
+		- examples/bad/bad{001,002,004,005,010,011,021}.jl - syntax error
+		- examples/bad/bad{006,007,012,017,018,019}.jl - context error
+		- examples/bad/bad009.jl - ok : dziala domyslne rzutowanie 'boolean' -> 'int'
+		- examples/bad/bad013.jl - ok : dziala domyslne rzutowanie 'int' -> 'double'
+		- examples/bad/bad015.jl - ok : dziala domyslne rzutowanie 'double' -> 'int'
+		- examples/bad/bad016.jl - ok : dziala domyslne rzutowanie 'int' -> 'double'
+		- examples/bad/bad020.jl - ok : dziala domyslne rzutowanie 'boolean' -> 'double'
+		- examples/bad/bad022.jl - ok : dziala domyslne rzutowanie 'double' -> 'int'
+		- examples/bad/bad023.jl - ok : dziala domyslne rzutowanie 'int' -> 'double'
+		- examples/bad/bad026.jl - ok : dziala domyslne rzutowanie 'double' -> 'int'
+		- examples/bad/bad027.jl - ok : dziala domyslne rzutowanie 'int' -> 'double'
+
+		- examples/extensions/typecast/explicit_cast.jl - context error: brak 'return'
+
+	Wlasne przyklady z katalogu 'tests/' (w plikach napisane co sprawdzaja)
+		
+		- tests/correct{001-010}.jl - ok
+		- tests/explicit_cast.jl - ok: poprawiony 'return' z 'examples/extensions'
+		- tests/failure{001-040}.jl - error
+
+4.   Generowanie kodu do asemblera (NASM)
+
+	Kod w asemblerze dzieli sie na sekcje '.rodata' ze stalymi wartosciami 
+	uzytymi w programie a takze innymi uzytymi do predefiniowanych funkcji.
+	Kazda uzyta wartosc w programie dostaje unikalny numer, ktory potem 
+	umozliwia dostep. 
+
+	Funkcje predefiniowane zostaly napisane w asemblerze, ze wspomozeniem 
+	funkcjami z C jak printf czy scanf. Stad linkowac nalezy z bibliotekami
+	do C. np przez gcc. W kodzie jest zdefiniowana funkcja 'main', ktora 
+	wywoluje funkcje 'main' zdefiniowana w programie. 
+
+4.1. Realizacja generowania kodu funkcji
+
+	Program w jezyku javalette, sklada sie z listy funkcji. Wystarczy zatem je
+	zdefiniowac pokolei w osobnych miejscach kodu. W tym celu kazda funkcja 
+	dostaje unikalny identyfikator(takze te zagniezdzone). Jesli w pewnym
+	momencie programu jest jej wywolanie to jest jednoznacznie okreslona 
+	etykieta funkcji. Nie trzeba sie przejmowac, czy funkcja jest zagniezdzona
+	czy nie. Zakladajac, ze analiza semantyczna jest poprawna nigdy nie wystapi
+	nieuprawnione wolanie funkcji.
+
+	Funkcja musi odkladac na stos wartosc ebp, aby w razie zagniezdzenia moc
+	odpowiednio trafic do zmiennych. Argumenty funkcji sa odkladane przy 
+	jej wywolaniu, latwo wiec okreslic ich pozycje na stosie:
+		1 - [ebp+8], 2 - [ebp+12], 3 - [ebp+16], ...
+	Zmienne lokalne w funkcji beda rowniez odkladane na stosie, na biezaco:
+		1 - [ebp-4], 2 - [ebp-8], 3 - [ebp-12], ...
+	Musi byc spamietywany licznik ile zmiennych zostalo odlozonych na stosie 
+	aby przy wyjsciu z funkcji odpowiednio przywrocic wielkosc stosu. 
+	Dodatkowo kazda zmienna musi pamietac, skad pochodzi, aby tam jej szukac
+	a nie w bierzacym kontekcie - bowiem podczas generowania kodu mogloby sie
+	zdarzyc, ze odwolywalibysmy sie do zmiennej, ktora dopiero za chwile
+	bedzie zadeklarowana(ale w biezacym kontekscie, badz co badz...).
+
+4.2. Realizacja instrukcji blokowej
+
+	Przy wejsciu do bloku tworzony jest nowy kontekst, moga byc definiowane 
+	zmiennej o zdefiniowanej juz nazwie. Przy ich deklaracji stos jest
+	odpowiednio podnoszony oraz przy wyjsciu z bloku wierzcholek stosu przywracany.
+	Zatem rowniez trzeba zliczac aktualne przesuniecie na stosie.
+
+4.3. Realizacja instrukcji warunkowej
+
+	Instrukcja warunkowa jest realizowana za pomoca skokow do odpowiednich 
+	etykiet. Etykiety musza miec unikalne nazwy, wiec kazda instukcja warunkowa
+	ma unikalny numer (tak jak w przypadku funkcji). 
+
+		< EXPRESION -> eax >
+		JZ NEAR C[0-9]+f[0-9]+else
+		< STATEMENT -> jesli prawda >
+		JMP NEAR C[0-9]+f[0-9]+fi
+		C[0-9]+f[0-9]+else:
+		< STATEMENT -> jesli falsz >
+		C[0-9]+f[0-9]+fi:
+
+4.4. Realizacja instrukcji iteracji
+
+	Instrukcja iteracji rowniez wymaga unikalnych etykiet. 
+
+		< EXPRESSION - wstepne przypisanie >
+		I[0-9]+f[0-9]+begin:
+		< EXPRESSION - warunek petli >
+		JZ NEAR I[0-9]+f[0-9]+end
+		< STATEMENT - tresc petli >
+		< EXPRESSION - przypisanie co obrot >
+		JMP NEAR I[0-9]+f[0-9]+begin
+		I[0-9]+f[0-9]+end:
+
+4.5. Realizacja instrukcji powrotu
+
+	Wykonujac wyjscie z funkcji, nalezy zwinac stos, w tym celu w bierzacym
+	kontekscie jest trzymana informacja o wielkosci stosu oraz przywrocic 
+	poprzednia wartosc rejestru ebp. Kazda funkcja musi miec instrukcje powrotu.
+
+4.6. Realizacja instrukcji deklaracji
+
+	Na stosie jest rezerwowane miejsce na nowe zmienne oraz jesli trzeba
+	sa im przypisywane wartosci. W bierzacym kontekscie jest uwzgledniany
+	nowy rozmiar stosu. 
+
+	Mozliwe jest uzycie nazwy zmiennej w jej deklaracji o ile tylko taka zmienna
+	byla juz wczesniej zadeklarowana i taka wartosc bedzie reprezentowala.
+
+	int i = 1; // i = 1
+	{
+		int i = i + 2; // i = 3
+	}
+
+4.7. Realizacja wyrazen
+
+	Wyrazenia czesto moga przybierac forme drzewa zaleznosci. Konieczne
+	jest zatem utworzenie zmiennych tymczasowych dla wyliczenia posrednich
+	wartosci. 
+
+	Tworzone jest drzewo zaleznosci wyrazen i na stosie jest rezerwowane
+	miejsce na zmienne tymczasowe. Wszystkie wyrazenia wystepujace w drzewie
+	umieszczamy na liscie od najbardziej lewego do najbardziej prawego.
+	Za kazdym razem obliczamy wyrazenie, z mozliwych do wyliczenia, najbardziej
+	na lewo. Dzieki temu latwo jest zadbac o leniwe wykonywanie operacji 
+	'&&' i '||'. Skoro idziemy od lewej, to zostawiamy w kodzie odpowiednie 
+	porownania oraz skoki. Porzadek na liscie zapewnia, ze beda pominiete tylko
+	te obliczenia, ktore trzeba. Gdy wszystkie wyrazenia zostana policzone
+	wynik jest odkladany na rejestr eax. 
+
+	Aby odnlezc adres zmiennej, do ktorej sie odnosimy, trzeba odnalezc 
+	kontekst jej deklaracji oraz skaczac po wartosci ebp dostac odpowiedni
+	adres - stamtad bierzemy/przypisujemy wartosc.
+
+4.8. Zgodnosc testow z katalogu 'examples'.
+
+	Wszystkie wyniki sa zgodne ze wzorcowymi. Jest jednak kilka drobnych 
+	roznic. Moje printInt, printDouble, printString same z siebie nie doklejaja
+	na koniec znaku nowej linni. Nieco inaczej tez zachowuja sie funkcje 
+	dzialajace na doublach. Po pierwsze sa wypisywane w innym formacie (%g),
+	po drugie rzutowanie z double-a na int-a zaokragla do najblizszej liczby
+	calkowitej.
+	
+	Dodatkowo sprawdzajac poprawnosc programu zapisalem kilka wlasnych testow
+	w 'tests/other'. Sprawdzaja poprawnosc operacji arytmetycznych, porownan,
+	rzutowan, wywolywan funkcji, deklaracji zmiennych, itd...
+

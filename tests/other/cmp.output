@@ -1,0 +1,6 @@
+a = 0
+f called
+condition 1 is ok
+a = 1
+g called
+a = 2
