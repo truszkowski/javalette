@@ -32,6 +32,6 @@ clean:
 
 prepare:
 	@echo "sprawdzam czy sa w systemie bison, flex i nasm..."
-	@which bison
-	@which flex
-	@which nasm
+	@which bison || ( echo "brak 'bison'a w systemie" ; exit 1 )
+	@which flex  || ( echo "brak 'flex'a w systemie" ; exit 1 )
+	@which nasm  || ( echo "brak 'nasm'a w systemie" ; exit 1 )
