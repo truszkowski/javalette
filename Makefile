@@ -11,7 +11,7 @@ OBJ       := config.o generate.o analyze.o program.o expr_resolv.o context.o nam
 
 #-- bison + flex + obiekty
 
-all: clean tags $(OBJ)
+all: prepare clean tags $(OBJ)
 	$(YAC) -d javalette.y
 	$(LEX) -t javalette.l > javalette.c
 	$(CC)  $(CFLAGS) -c javalette.tab.c
@@ -30,3 +30,8 @@ tags :
 clean:
 	rm -rf javalette.tab.* javalette.output javalette.c javalette *.o tags core core.*
 
+prepare:
+	@echo "sprawdzam czy sa w systemie bison, flex i nasm..."
+	@which bison
+	@which flex
+	@which nasm
